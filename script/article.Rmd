@@ -1,9 +1,17 @@
 ---
 title: "biostats776-Project2"
-author: "Zhengting (Johnathan) He"
-date: "2021/9/27"
-output: html_document
+description: |
+  Exploring temperature and rainfall in Australia — My Solution
+author:
+  - name: Zhengting (Johnathan) He
+date: "09-27-2021"
+output:
+  distill::distill_article:
+    self_contained: false
+    toc: true
+    toc_depth: 3
 ---
+
 
 ```{r "setup", include = FALSE}
 require("knitr")
