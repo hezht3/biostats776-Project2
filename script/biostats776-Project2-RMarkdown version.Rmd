@@ -1,17 +1,9 @@
 ---
-title: "biostats776-Project2"
-description: |
-  Exploring temperature and rainfall in Australia — My Solution
-author:
-  - name: Zhengting (Johnathan) He
-date: "09-27-2021"
-output:
-  distill::distill_article:
-    self_contained: false
-    toc: true
-    toc_depth: 3
+title: "biostats776-Project2-RMarkdown version"
+author: "Zhengting (Johnathan) He"
+date: "2021/9/27"
+output: html_document
 ---
-
 
 ```{r "setup", include = FALSE}
 require("knitr")
@@ -227,7 +219,38 @@ Use the functions in `ggplot2` package to make a line plot of the max and min te
 2. Use a facet function to facet by `city_name` to show all cities in one figure.
 
 ```{r}
-# Add your solution here
+df %>%
+    filter(year >= 2014) %>%
+    ggplot(aes(x = date, y = temperature, color = temp_type)) +
+    geom_line() +
+    facet_grid(city_name ~ ., scales = "free") +
+    scale_color_manual("Temperature Type (Daily)",
+                       values = c("#bb86fc", "#03dac5"),
+                       labels = c("Max", "Min")) +
+    labs(x = "Date",
+         y = "Temperature in Celsius",
+         title = "Daily Temperature in year 2014 and onwards in Australia",
+         subtitle = "The Daily Temperature Fluctuate Between Each Season In Each Year, \nWith Highest Value in Winter and Lowest Value in Summer",
+         caption = "By Zhengting (Johnathan) He") +
+    theme(plot.background = element_rect(fill = "#262525", colour = NA),
+          panel.background = element_rect(fill = "#121212", colour = NA),
+          panel.border = element_rect(fill = NA, colour = "#1f1b24"),
+          panel.grid = element_line(colour = "#1f1b24"), 
+          panel.grid.minor = element_line(size = rel(0.5)),
+          strip.background = element_rect(fill = "#000000", colour = "grey20"),
+          legend.background = element_rect(fill = "transparent", colour = "transparent"),
+          legend.key = element_rect(fill = "transparent"),
+          plot.title = element_text(size = 12, face = "bold", color = "#ffffff"),
+          plot.subtitle = element_text(size = 10, face = "bold", color = "#ffffff"),
+          plot.caption = element_text(size = 10, color = "#ffffff"),
+          axis.title.x = element_text(size = 10, face = "bold", color = "#ffffff"),
+          axis.title.y = element_text(size = 10, face = "bold", color = "#ffffff"),
+          axis.text.x = element_text(size = 8, color = "#ffffff"),
+          axis.text.y = element_text(size = 8, color = "#ffffff"),
+          strip.text.y = element_text(size = 8, color = "#ffffff", angle = 0),
+          legend.position = "top",
+          legend.title = element_text(size = 10, face = "bold", color = "#ffffff"),
+          legend.text = element_text(size = 10, face = "bold", color = "#ffffff"))
 ```
 
 
@@ -237,7 +260,7 @@ Here we want to explore the distribution of rainfall (log scale) with histograms
 
 The following code plots the data from one city (`city_name == "PERTH"`) in a given year (`year == 2000`). 
 
-```{r, eval=FALSE}
+```{r}
 df %>% 
   filter(city_name == "PERTH", year == 2000) %>% 
   ggplot(aes(log(rainfall))) + 
@@ -260,12 +283,135 @@ For your homework submission
 
 1. Write a short description of how you chose to design your function and why. 
 
+I chose to design the function by:
+
++ Transform the user input to the object class needed, i.e., city_name to `character`, and year to `numeric`.
+
++ Check whether the user inputted city name and year meets with any possible observation in `df`.
+
+  - I also figure out another way by generating all possible combinations of city_name and year (like what I did in Part 3B 3.), and to combine the user inputted city name and year to a vector and test whether it matches any possible combination, but I think directly using `filter(df, city_name == user.city.name & year == user.year)` and check whether it retrieve any observation is better.
+  
++ If the user input meets with possible obs in `df`, plot the histogram. I change the `xlab`, `ylab`, `title` to try to make it readable.
+
++ If the user input does not meet with any obs in `df`, stop the function and print out an error message.
+
++ Test the function by generating a random city name and year that match an observation of `df`, and by intentionally inputting a wrong city name and year.
+
 2. Present the code for your function in the R markdown document.
+
+```{r}
+city.year.hist <- function(user.city.name, user.year) {
+    # Transform user input
+    user.city.name <- as.character(user.city.name)
+    user.year <- as.numeric(user.year)
+    
+    # Check whether user input retrieve existing combination of "city_name" and "year"
+    # Plot histogram if yes, stop if not
+    if(nrow(filter(df, city_name == user.city.name & year == user.year)) > 0) {
+           return(
+               df %>%
+                   filter(city_name == user.city.name, year == user.year) %>%
+                   ggplot(aes(log(rainfall))) +
+                   geom_histogram(fill = "#bb86fc", colour = "#d5b3fe") +
+                   labs(x = "Rainfall in Millimeters On Log Scale",
+                        y = "Count of Days",
+                        title = paste("Histogram of Yearly Rainfall for",
+                                      user.city.name, "in", user.year, "in Australia",
+                                      sep = " "),
+                        subtitle = "The Distribution of the Frequency Scattered Between Rainfall On Log Scale",
+                        caption = "By Zhengting (Johnathan) He") +
+                   theme(plot.background = element_rect(fill = "#262525", colour = NA),
+                         panel.background = element_rect(fill = "#121212", colour = NA),
+                         panel.border = element_rect(fill = NA, colour = "#1f1b24"),
+                         panel.grid = element_line(colour = "#1f1b24"), 
+                         panel.grid.minor = element_line(size = rel(0.5)),
+                         plot.title = element_text(size = 12, face = "bold", color = "#ffffff"),
+                         plot.subtitle = element_text(size = 10, face = "bold", color = "#ffffff"),
+                         plot.caption = element_text(size = 10, color = "#ffffff"),
+                         axis.title.x = element_text(size = 10, face = "bold", color = "#ffffff"),
+                         axis.title.y = element_text(size = 10, face = "bold", color = "#ffffff"),
+                         axis.text.x = element_text(size = 8, color = "#ffffff"),
+                         axis.text.y = element_text(size = 8, color = "#ffffff"))
+           )
+    } else stop("Invalid City Name or Year, Please Recheck Your Input")
+}
+```
 
 3. Include at least one example of output from your function. 
 
 ```{r}
-# Add your solution here
+# Generate random city and year for testing
+city_year_list <- df %>%
+                      select(city_name, year) %>%
+                      distinct() %>%
+                      unite(col = city_year, city_name, year, sep = " and ") %>%
+                      pull(city_year)
+city_year_list <- str_split_fixed(city_year_list, " and ", 2)
+
+# Test 1: correct
+user.city.year <- city_year_list[sample(nrow(city_year_list), 1),]
+print(user.city.year)
+city.year.hist(user.city.year[1], user.city.year[2])
+```
+
+```{r error = TRUE}
+# Test 2: error
+city.year.hist("Baltimore", 2020)
 ```
 
 
+# Part 4: Apply functions and plot
+
+### Part 4A: Tasks
+
+In this part, we will apply the functions we wrote in Part 1 to our rainfall data starting with our wrangled `df` data from Part 2.
+
+1. First, filter for only years including 2014 and onwards.
+2. For a given city and for a given year, calculate the sample mean (using your function `sample_mean()`), the sample standard deviation (using your function `sample_sd()`), and a 95% confidence interval for the average rainfall (using your function `calculate_CI()`). Specifically, you should add two columns in this summarized dataset: a column titled `lower_bound` and a column titled `upper_bound` containing the lower and upper bounds for you CI that you calculated (using your function `calculate_CI()`). 
+3. Call this summarized dataset `rain_df`. 
+
+```{r}
+rain_df <- df %>%
+               filter(year >= 2014) %>%
+               group_by(city_name, year) %>%
+               summarise(mean = sample_mean(rainfall),
+                         sd = sample_sd(rainfall),
+                         lower_bound = calculate_CI(rainfall, 0.95)[1],
+                         upper_bound = calculate_CI(rainfall, 0.95)[2])
+rain_df %>% knitr::kable()
+```
+
+
+### Part 4B: Tasks
+
+Using the `rain_df`, plots the estimates of mean rainfall and the 95% confidence intervals on the same plot. There should be a separate faceted plot for each city. Think about using `ggplot()` with both `geom_point()` (and `geom_line()` to connect the points) for the means and `geom_errorbar()` for the lower and upper bounds of the confidence interval. 
+
+```{r}
+rain_df %>%
+    ggplot(aes(x = year, color = city_name)) +
+    geom_point(aes(y = mean), size = 2) +
+    geom_line(aes(y = mean), size = 1) +
+    geom_errorbar(aes(ymin = lower_bound, ymax = upper_bound, width = 0.1)) +
+    facet_wrap(~ city_name, scales = "free") +
+    labs(x = "Year",
+         y = "Summary Statistics of Rainfall (In Millimeters)",
+         title = "Annual Rainfall in 5 Cities in Australia (2014-2019)",
+         caption = "By Zhengting (Johnathan) He") +
+    scale_color_manual("City",
+                      values = c("#314855", "#5cc3e8", "#ffdb00", "#79ceb8", "#e95f5c")) +
+    theme(panel.background = element_rect(fill='transparent', color='black'),
+          panel.border = element_rect(fill='transparent', color='grey20'),
+          panel.grid = element_line(colour = "grey92"), 
+          panel.grid.minor = element_line(size = rel(0.5)),
+          legend.background = element_rect(fill = "transparent", colour = "transparent"),
+          legend.key = element_rect(fill = "transparent"),
+          axis.title.x = element_text(size = 8, face = "bold", color = "black"),
+          axis.title.y = element_text(size = 8, face = "bold", color = "black"),
+          axis.text = element_text(size = 8, face = "bold", color = "black"),
+          legend.title = element_text(size = 10, face = "bold", color = "black"),
+          legend.text = element_text(size = 10, face = "bold", color = "black"),
+          legend.position = "bottom",
+          plot.caption = element_text(size = 8, face = "bold", color = "black"),
+          strip.background = element_rect(fill='transparent', color='black'),
+          strip.text.x = element_text(size = 8, face = "bold", color = "black"))
+```
