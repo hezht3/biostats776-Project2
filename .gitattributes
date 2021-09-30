@@ -1,0 +1,8 @@
+* linguist-language
+*.ipynb linguist-language=jupyter-notebook
+*.R linguist-language=R
+*.Rmd=R
+*.rds linguist-language=R
+*.do linguist-language=stata
+*.dta linguist-language=stata
+*.sas linguist-language=sas
