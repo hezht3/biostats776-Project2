@@ -162,7 +162,6 @@ temperature <- readRDS("./data/tuesdata_temperature.RDS")
 Now we can look at the data with `glimpse()`
 
 ```{r,message=FALSE}
-require(tidyverse)
 glimpse(rainfall)
 glimpse(temperature)
 ```
@@ -287,9 +286,9 @@ I chose to design the function by:
 
 + Transform the user input to the object class needed, i.e., city_name to `character`, and year to `numeric`.
 
-+ Check whether the user inputted city name and year meets with any possible observation in `df`.
-
-  - I also figure out another way by generating all possible combinations of city_name and year (like what I did in Part 3B 3.), and to combine the user inputted city name and year to a vector and test whether it matches any possible combination, but I think directly using `filter(df, city_name == user.city.name & year == user.year)` and check whether it retrieve any observation is better.
++ Check whether the combination of user inputted city name and year meets with any possible observation in `df`.
+  - `user.city.name %in% df$city_name & user.year %in% df$year` does not seem to work, since `user.city.name` and `user.year` may match different rows of `df`, thus does not retrieve meaningful observations.
+  - I also figure out another way by generating all possible combinations of city_name and year (like what I did in Part 3B 3.), and to combine the user inputted city name and year to a vector and test whether it matches any possible combination, but I think it is too complicated compared with directly using `filter(df, city_name == user.city.name & year == user.year)` and check whether it retrieve any observation.
   
 + If the user input meets with possible obs in `df`, plot the histogram. I change the `xlab`, `ylab`, `title` to try to make it readable.
 
